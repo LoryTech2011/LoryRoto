@@ -49,7 +49,7 @@ class AppPaths:
             self.logs,
         ):
             if not path.resolve().is_relative_to(root):
-                raise OSError(f"Percorso gestito fuori dalla cartella dell'app: {path}")
+                raise OSError(f"Managed path is outside the application folder: {path}")
             path.mkdir(parents=True, exist_ok=True)
             if not path.resolve().is_relative_to(root):
-                raise OSError(f"Percorso gestito fuori dalla cartella dell'app: {path}")
+                raise OSError(f"Managed path is outside the application folder: {path}")

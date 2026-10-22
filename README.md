@@ -69,7 +69,7 @@ service.
 1. Open or drag a video into the viewer. While dragging the timeline, Roto Local
    displays downscaled previews from a bounded in-memory frame cache; on release
    it loads the selected frame at full resolution for annotation.
-2. Select a subject in the subject list. Add more with **+ Soggetto** or
+2. Select a subject in the subject list. Add more with **+ Subject** or
    remove the selected subject with **−**. Each subject has its own point
    prompts, brush corrections, mask, and tracking pass. Positive points and
    mask overlays use a distinct color per subject; negative points remain red.

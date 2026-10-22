@@ -20,7 +20,7 @@ def export_sequence(
     progress: Callable[[int, int], None] | None = None,
 ) -> Path:
     if first_frame < 0 or last_frame >= project.video_info.frame_count or first_frame > last_frame:
-        raise ProjectError("Intervallo di esportazione non valido.")
+        raise ProjectError("Invalid export range.")
     output = Path(destination).resolve()
     missing = [
         frame_index
@@ -29,8 +29,8 @@ def export_sequence(
     ]
     if missing:
         raise ProjectError(
-            f"Maschera mancante al fotogramma {missing[0]}; "
-            "l'esportazione non è stata avviata."
+            f"Missing mask at frame {missing[0]}; "
+            "export was not started."
         )
     output.mkdir(parents=True, exist_ok=True)
     total = last_frame - first_frame + 1
@@ -60,13 +60,13 @@ def export_video_sequence(
     progress: Callable[[int, int], None] | None = None,
 ) -> Path:
     if first_frame < 0 or last_frame >= project.video_info.frame_count or first_frame > last_frame:
-        raise ProjectError("Intervallo di esportazione non valido.")
+        raise ProjectError("Invalid export range.")
     if mode not in {"mask", "alpha"}:
-        raise ProjectError("Formato video di esportazione non valido.")
+        raise ProjectError("Invalid video export format.")
     suffix = ".mp4" if mode == "mask" else ".mov"
     output = Path(destination).resolve()
     if output.suffix.lower() != suffix:
-        raise ProjectError(f"Questo tipo di video deve essere esportato come {suffix}.")
+        raise ProjectError(f"This video type must be exported as {suffix}.")
     missing = [
         frame_index
         for frame_index in range(first_frame, last_frame + 1)
@@ -74,8 +74,8 @@ def export_video_sequence(
     ]
     if missing:
         raise ProjectError(
-            f"Maschera mancante al fotogramma {missing[0]}; "
-            "l'esportazione non è stata avviata."
+            f"Missing mask at frame {missing[0]}; "
+            "export was not started."
         )
 
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -219,9 +219,9 @@ def export_video_sequence(
                 bufsize=1,
             )
         except OSError as exc:
-            raise ProjectError(f"Avvio FFmpeg non riuscito: {exc}") from exc
+            raise ProjectError(f"Could not start FFmpeg: {exc}") from exc
         if process.stdout is None or process.stderr is None:
-            raise ProjectError("Impossibile aprire gli stream di FFmpeg.")
+            raise ProjectError("Could not open FFmpeg streams.")
         for line in process.stdout:
             if progress and line.startswith("frame="):
                 try:
@@ -233,7 +233,7 @@ def export_video_sequence(
         return_code = process.wait()
         if return_code:
             raise ProjectError(
-                detail or f"FFmpeg non è riuscito a esportare il video (codice {return_code})."
+                detail or f"FFmpeg failed to export the video (exit code {return_code})."
             )
         temporary.replace(output)
         return output

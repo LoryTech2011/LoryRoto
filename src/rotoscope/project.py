@@ -32,11 +32,11 @@ class ProjectStore:
         self.root = Path(root).resolve()
         self.manifest_path = self.folder / "project.json"
         if not self.folder.is_relative_to(self.root):
-            raise ProjectError("Il progetto deve rimanere nella cartella dell'app.")
+            raise ProjectError("The project must remain inside the application folder.")
         try:
             self.data: dict[str, Any] = json.loads(self.manifest_path.read_text("utf-8"))
         except (OSError, json.JSONDecodeError) as exc:
-            raise ProjectError(f"Progetto non leggibile: {exc}") from exc
+            raise ProjectError(f"Could not read project: {exc}") from exc
         self._ensure_subject_data()
 
     @classmethod
@@ -49,11 +49,11 @@ class ProjectStore:
         app_root = Path(root).resolve()
         projects_folder = app_root / "projects"
         if not projects_folder.resolve().is_relative_to(app_root):
-            raise ProjectError("La cartella progetti deve rimanere nella cartella dell'app.")
+            raise ProjectError("The projects folder must remain inside the application folder.")
         folder = projects_folder / str(uuid.uuid4())
         folder.mkdir(parents=True)
         if not folder.resolve().is_relative_to(app_root):
-            raise ProjectError("Il progetto deve rimanere nella cartella dell'app.")
+            raise ProjectError("The project must remain inside the application folder.")
         for name in ("masks", "exports"):
             (folder / name).mkdir()
         data = {
@@ -72,7 +72,7 @@ class ProjectStore:
             "manual_ops": {},
             "status": {},
             "mask_max_dimension": None,
-            "subjects": [{"id": "subject-1", "name": "Soggetto 1", "color": cls.SUBJECT_COLORS[0]}],
+            "subjects": [{"id": "subject-1", "name": "Subject 1", "color": cls.SUBJECT_COLORS[0]}],
             "subject_points": {"subject-1": {}},
             "subject_manual_ops": {"subject-1": {}},
         }
@@ -91,7 +91,7 @@ class ProjectStore:
             subjects = [
                 {
                     "id": "subject-1",
-                    "name": "Soggetto 1",
+                    "name": "Subject 1",
                     "color": self.SUBJECT_COLORS[0],
                 }
             ]
@@ -127,7 +127,7 @@ class ProjectStore:
             index += 1
         subject = {
             "id": f"subject-{index}",
-            "name": f"Soggetto {index}",
+            "name": f"Subject {index}",
             "color": self.SUBJECT_COLORS[(index - 1) % len(self.SUBJECT_COLORS)],
         }
         self.data["subjects"].append(subject)
@@ -138,7 +138,7 @@ class ProjectStore:
 
     def remove_subject(self, subject_id: str) -> None:
         if len(self.data["subjects"]) <= 1:
-            raise ProjectError("Il progetto deve mantenere almeno un soggetto.")
+            raise ProjectError("A project must have at least one subject.")
         subject = self._subject(subject_id)
         self.data["subjects"] = [
             item for item in self.data["subjects"] if item["id"] != subject_id
@@ -165,7 +165,7 @@ class ProjectStore:
         for subject in self.data["subjects"]:
             if subject["id"] == subject_id:
                 return subject
-        raise ProjectError(f"Soggetto non trovato: {subject_id}")
+        raise ProjectError(f"Subject not found: {subject_id}")
 
     @property
     def source(self) -> Path:
@@ -186,7 +186,7 @@ class ProjectStore:
 
     def set_mask_max_dimension(self, max_dimension: int | None) -> None:
         if max_dimension not in {None, 1920}:
-            raise ProjectError("La risoluzione della maschera deve essere originale o 1080p.")
+            raise ProjectError("Mask resolution must be Original or 1080p.")
         if self.data.get("mask_max_dimension") != max_dimension:
             self.data["mask_max_dimension"] = max_dimension
             self.save()

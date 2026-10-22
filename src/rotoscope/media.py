@@ -30,14 +30,14 @@ def _require_tool(name: str) -> str:
 
     executable = which(name)
     if executable is None:
-        raise MediaError(f"{name} non trovato. Installalo e riavvia l'app.")
+        raise MediaError(f"{name} was not found. Install it and restart the app.")
     return executable
 
 
 def probe_video(path: str | Path) -> VideoInfo:
     source = Path(path).expanduser().resolve()
     if not source.is_file():
-        raise MediaError(f"File video non trovato: {source}")
+        raise MediaError(f"Video file not found: {source}")
     result = subprocess.run(
         [
             _require_tool("ffprobe"),
@@ -59,7 +59,7 @@ def probe_video(path: str | Path) -> VideoInfo:
         timeout=30,
     )
     if result.returncode:
-        raise MediaError(result.stderr.strip() or "ffprobe non è riuscito a leggere il video.")
+        raise MediaError(result.stderr.strip() or "ffprobe could not read the video.")
     try:
         data = json.loads(result.stdout)
         stream = data["streams"][0]
@@ -68,7 +68,7 @@ def probe_video(path: str | Path) -> VideoInfo:
         duration = float(stream.get("duration") or data.get("format", {}).get("duration") or 0)
         frame_count = int(stream.get("nb_frames") or round(duration * fps))
         if fps <= 0 or duration <= 0 or frame_count <= 0:
-            raise ValueError("metadati temporali mancanti")
+            raise ValueError("missing timing metadata")
         return VideoInfo(
             width=int(stream["width"]),
             height=int(stream["height"]),
@@ -78,7 +78,7 @@ def probe_video(path: str | Path) -> VideoInfo:
             codec=str(stream.get("codec_name", "sconosciuto")),
         )
     except (KeyError, TypeError, ValueError, ZeroDivisionError) as exc:
-        raise MediaError(f"Metadati video non validi: {exc}") from exc
+        raise MediaError(f"Invalid video metadata: {exc}") from exc
 
 
 def decode_frame_window(
@@ -89,7 +89,7 @@ def decode_frame_window(
     max_dimension: int | None = None,
 ) -> list[np.ndarray]:
     if frame_count < 1 or not 0 <= first_frame < info.frame_count:
-        raise MediaError("Intervallo di decodifica non valido.")
+        raise MediaError("Invalid decode range.")
     count = min(frame_count, info.frame_count - first_frame)
     source = Path(path).expanduser().resolve()
     width, height = info.width, info.height
@@ -129,15 +129,15 @@ def decode_frame_window(
             timeout=max(45, count * 2),
         )
     except subprocess.TimeoutExpired as exc:
-        raise MediaError("Timeout durante la decodifica del video.") from exc
+        raise MediaError("Timed out while decoding video.") from exc
     frame_size = width * height * 3
     expected_size = count * frame_size
     if result.returncode or len(result.stdout) != expected_size:
         detail = result.stderr.decode("utf-8", errors="replace").strip()
         raise MediaError(
             detail
-            or f"FFmpeg ha decodificato {len(result.stdout) // frame_size} frame, "
-            f"attesi {count}, a partire dal frame {first_frame}."
+            or f"FFmpeg decoded {len(result.stdout) // frame_size} frames, "
+            f"expected {count} starting at frame {first_frame}."
         )
     decoded = np.frombuffer(result.stdout, dtype=np.uint8).reshape(
         count, height, width, 3
@@ -156,7 +156,7 @@ def iter_video_frames(
     info: VideoInfo,
 ) -> Iterator[np.ndarray]:
     if frame_count < 1 or not 0 <= first_frame < info.frame_count:
-        raise MediaError("Intervallo di decodifica non valido.")
+        raise MediaError("Invalid decode range.")
     count = min(frame_count, info.frame_count - first_frame)
     source = Path(path).expanduser().resolve()
     arguments = [
@@ -185,12 +185,12 @@ def iter_video_frames(
             stderr=subprocess.PIPE,
         )
     except OSError as exc:
-        raise MediaError(f"Avvio FFmpeg non riuscito: {exc}") from exc
+        raise MediaError(f"Could not start FFmpeg: {exc}") from exc
 
     frame_size = info.width * info.height * 3
     try:
         if process.stdout is None or process.stderr is None:
-            raise MediaError("Impossibile aprire lo stream FFmpeg.")
+            raise MediaError("Could not open FFmpeg streams.")
         for frame_index in range(count):
             buffer = bytearray(frame_size)
             view = memoryview(buffer)
@@ -205,8 +205,8 @@ def iter_video_frames(
                 return_code = process.wait()
                 raise MediaError(
                     detail
-                    or f"FFmpeg ha decodificato {frame_index} frame, attesi {count} "
-                    f"dal frame {first_frame} (codice {return_code})."
+                    or f"FFmpeg decoded {frame_index} frames, expected {count} "
+                    f"from frame {first_frame} (exit code {return_code})."
                 )
             yield np.frombuffer(buffer, dtype=np.uint8).reshape(
                 info.height,
@@ -220,8 +220,8 @@ def iter_video_frames(
         if return_code or extra_data:
             raise MediaError(
                 detail
-                or f"FFmpeg non ha terminato correttamente la decodifica "
-                f"(codice {return_code})."
+                or f"FFmpeg did not finish decoding successfully "
+                f"(exit code {return_code})."
             )
     finally:
         if process.poll() is None:
@@ -241,7 +241,7 @@ def extract_jpeg_window(
     output_dir: str | Path,
 ) -> list[Path]:
     if frame_count < 1 or first_frame < 0 or first_frame >= info.frame_count:
-        raise MediaError("Intervallo di estrazione non valido.")
+        raise MediaError("Invalid extraction range.")
     count = min(frame_count, info.frame_count - first_frame)
     folder = Path(output_dir)
     folder.mkdir(parents=True, exist_ok=True)
@@ -272,11 +272,11 @@ def extract_jpeg_window(
     )
     if result.returncode:
         raise MediaError(result.stderr.decode("utf-8", errors="replace").strip() or
-                         "Estrazione del blocco video non riuscita.")
+                         "Could not extract video segment.")
     frames = sorted(folder.glob("*.jpg"))
     if len(frames) != count:
         raise MediaError(
-            f"FFmpeg ha estratto {len(frames)} fotogrammi, attesi {count}; "
-            "il video potrebbe avere frame rate variabile o metadati incompleti."
+            f"FFmpeg extracted {len(frames)} frames, expected {count}; "
+            "the video may have a variable frame rate or incomplete metadata."
         )
     return frames

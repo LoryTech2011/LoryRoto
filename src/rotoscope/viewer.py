@@ -74,7 +74,7 @@ class ViewerWidget(QWidget):
         painter.fillRect(self.rect(), QColor("#111820"))
         if self.frame is None:
             painter.setPen(QColor("#a9b4c0"))
-            painter.drawText(self.rect(), Qt.AlignmentFlag.AlignCenter, "Apri o trascina un video")
+            painter.drawText(self.rect(), Qt.AlignmentFlag.AlignCenter, "Open or drag a video")
             painter.end()
             return
 

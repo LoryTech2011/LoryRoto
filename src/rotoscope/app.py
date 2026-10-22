@@ -246,14 +246,14 @@ class MainWindow(QMainWindow):
         layout.setContentsMargins(12, 10, 12, 8)
 
         toolbar = QHBoxLayout()
-        self.open_video_button = QPushButton("Apri video")
-        self.open_project_button = QPushButton("Apri progetto")
-        self.save_button = QPushButton("Salva")
+        self.open_video_button = QPushButton("Open Video")
+        self.open_project_button = QPushButton("Open Project")
+        self.save_button = QPushButton("Save")
         toolbar.addWidget(self.open_video_button)
         toolbar.addWidget(self.open_project_button)
         toolbar.addWidget(self.save_button)
         toolbar.addStretch(1)
-        self.video_info_label = QLabel("Nessun video")
+        self.video_info_label = QLabel("No video")
         toolbar.addWidget(self.video_info_label)
         layout.addLayout(toolbar)
 
@@ -266,9 +266,9 @@ class MainWindow(QMainWindow):
         layout.addWidget(splitter, 1)
 
         transport = QHBoxLayout()
-        self.play_button = QPushButton("Riproduci")
-        self.previous_button = QPushButton("◀ Fotogramma")
-        self.next_button = QPushButton("Fotogramma ▶")
+        self.play_button = QPushButton("Play")
+        self.previous_button = QPushButton("◀ Frame")
+        self.next_button = QPushButton("Frame ▶")
         self.timeline = QSlider(Qt.Orientation.Horizontal)
         self.timeline.setRange(0, 0)
         self.frame_label = QLabel("0 / 0")
@@ -280,49 +280,49 @@ class MainWindow(QMainWindow):
         layout.addLayout(transport)
 
         range_layout = QHBoxLayout()
-        range_layout.addWidget(QLabel("Intervallo:"))
+        range_layout.addWidget(QLabel("Range:"))
         self.range_start = QSpinBox()
         self.range_end = QSpinBox()
-        self.range_start.setPrefix("Da ")
-        self.range_end.setPrefix("A ")
+        self.range_start.setPrefix("From ")
+        self.range_end.setPrefix("To ")
         self.range_start.setRange(0, 0)
         self.range_end.setRange(0, 0)
         range_layout.addWidget(self.range_start)
         range_layout.addWidget(self.range_end)
-        range_layout.addWidget(QLabel("Direzione:"))
+        range_layout.addWidget(QLabel("Direction:"))
         self.tracking_direction = QComboBox()
-        self.tracking_direction.addItem("Avanti", "forward")
-        self.tracking_direction.addItem("Indietro", "reverse")
-        self.tracking_direction.addItem("Entrambe", "both")
+        self.tracking_direction.addItem("Forward", "forward")
+        self.tracking_direction.addItem("Backward", "reverse")
+        self.tracking_direction.addItem("Both", "both")
         self.tracking_direction.setCurrentIndex(2)
         self.tracking_direction.setToolTip(
-            "Il tracking parte dal fotogramma selezionato nella timeline."
+            "Tracking starts from the frame selected on the timeline."
         )
         range_layout.addWidget(self.tracking_direction)
-        range_layout.addWidget(QLabel("Finestra memoria:"))
+        range_layout.addWidget(QLabel("Memory window:"))
         self.window_size = QComboBox()
-        self.window_size.addItem("12 frame — bassa", 12)
-        self.window_size.addItem("24 frame — media", 24)
-        self.window_size.addItem("48 frame — alta", 48)
+        self.window_size.addItem("12 frames — low", 12)
+        self.window_size.addItem("24 frames — medium", 24)
+        self.window_size.addItem("48 frames — high", 48)
         self.window_size.setCurrentIndex(0)
         self.window_size.setToolTip(
-            "Finestre più lunghe richiedono più memoria ma riducono i riavvii del tracking."
+            "Longer windows use more memory but reduce tracking restarts."
         )
         range_layout.addWidget(self.window_size)
-        range_layout.addWidget(QLabel("Risoluzione maschera:"))
+        range_layout.addWidget(QLabel("Mask resolution:"))
         self.mask_resolution = QComboBox()
-        self.mask_resolution.addItem("Originale", None)
-        self.mask_resolution.addItem("1080p — meno RAM", 1920)
+        self.mask_resolution.addItem("Original", None)
+        self.mask_resolution.addItem("1080p — less RAM", 1920)
         self.mask_resolution.setToolTip(
-            "A 1080p le maschere occupano meno memoria e spazio; "
-            "l'export viene riportato alla risoluzione video."
+            "At 1080p, masks use less memory and storage; "
+            "exports are resized to the video's resolution."
         )
         self.mask_resolution.currentIndexChanged.connect(
             self._mask_resolution_changed
         )
         range_layout.addWidget(self.mask_resolution)
-        self.propagate_button = QPushButton("Avvia tracking")
-        self.cancel_button = QPushButton("Interrompi")
+        self.propagate_button = QPushButton("Start Tracking")
+        self.cancel_button = QPushButton("Cancel")
         self.cancel_button.setEnabled(False)
         self.progress = QProgressBar()
         self.progress.setRange(0, 100)
@@ -334,7 +334,7 @@ class MainWindow(QMainWindow):
 
         self.setCentralWidget(root)
         self.setStatusBar(QStatusBar())
-        self.statusBar().showMessage("Caricamento modello SAM 2.1…")
+        self.statusBar().showMessage("Loading SAM 2.1 model…")
         self.play_timer = QTimer(self)
         self.play_timer.timeout.connect(self._advance_playback)
         self.preview_timer = QTimer(self)
@@ -359,12 +359,12 @@ class MainWindow(QMainWindow):
         panel = QWidget()
         layout = QVBoxLayout(panel)
         layout.setContentsMargins(12, 12, 12, 12)
-        layout.addWidget(QLabel("<b>Annotazione</b>"))
+        layout.addWidget(QLabel("<b>Annotation</b>"))
         subject_row = QHBoxLayout()
         self.subject_selector = QComboBox()
-        self.add_subject_button = QPushButton("+ Soggetto")
+        self.add_subject_button = QPushButton("+ Subject")
         self.remove_subject_button = QPushButton("−")
-        self.remove_subject_button.setToolTip("Rimuovi il soggetto selezionato")
+        self.remove_subject_button.setToolTip("Remove selected subject")
         self.remove_subject_button.setEnabled(False)
         subject_row.addWidget(self.subject_selector, 1)
         subject_row.addWidget(self.add_subject_button)
@@ -373,11 +373,11 @@ class MainWindow(QMainWindow):
         self.point_group = QButtonGroup(self)
         self.point_group.setExclusive(False)
         self.positive_button = QToolButton()
-        self.positive_button.setText("Punto positivo")
+        self.positive_button.setText("Positive Point")
         self.positive_button.setCheckable(True)
         self.positive_button.setChecked(True)
         self.negative_button = QToolButton()
-        self.negative_button.setText("Punto negativo")
+        self.negative_button.setText("Negative Point")
         self.negative_button.setCheckable(True)
         self.point_group.addButton(self.positive_button)
         self.point_group.addButton(self.negative_button)
@@ -385,14 +385,14 @@ class MainWindow(QMainWindow):
         layout.addWidget(self.negative_button)
 
         layout.addSpacing(10)
-        layout.addWidget(QLabel("<b>Pennello manuale</b>"))
+        layout.addWidget(QLabel("<b>Manual Brush</b>"))
         self.brush_group = QButtonGroup(self)
         self.brush_group.setExclusive(False)
         self.add_brush_button = QToolButton()
-        self.add_brush_button.setText("Aggiungi area")
+        self.add_brush_button.setText("Add Area")
         self.add_brush_button.setCheckable(True)
         self.remove_brush_button = QToolButton()
-        self.remove_brush_button.setText("Sottrai area")
+        self.remove_brush_button.setText("Subtract Area")
         self.remove_brush_button.setCheckable(True)
         self.brush_group.addButton(self.add_brush_button)
         self.brush_group.addButton(self.remove_brush_button)
@@ -401,28 +401,28 @@ class MainWindow(QMainWindow):
         self.brush_size = QSlider(Qt.Orientation.Horizontal)
         self.brush_size.setRange(2, 160)
         self.brush_size.setValue(24)
-        self.brush_size_label = QLabel("Pennello: 24 px")
+        self.brush_size_label = QLabel("Brush: 24 px")
         layout.addWidget(self.brush_size_label)
         layout.addWidget(self.brush_size)
 
         history = QHBoxLayout()
-        self.undo_button = QPushButton("Annulla")
-        self.redo_button = QPushButton("Ripristina")
+        self.undo_button = QPushButton("Undo")
+        self.redo_button = QPushButton("Redo")
         history.addWidget(self.undo_button)
         history.addWidget(self.redo_button)
         layout.addLayout(history)
         layout.addSpacing(10)
-        layout.addWidget(QLabel("<b>Esportazione</b>"))
-        self.export_mask_button = QPushButton("Esporta sequenza maschere PNG")
-        self.export_rgba_button = QPushButton("Esporta sequenza RGBA PNG")
-        self.export_mask_video_button = QPushButton("Esporta maschera B/N MP4")
-        self.export_cutout_video_button = QPushButton("Esporta soggetti trasparenti MOV")
+        layout.addWidget(QLabel("<b>Export</b>"))
+        self.export_mask_button = QPushButton("Export Mask PNG Sequence")
+        self.export_rgba_button = QPushButton("Export RGBA PNG Sequence")
+        self.export_mask_video_button = QPushButton("Export B&W Mask MP4")
+        self.export_cutout_video_button = QPushButton("Export Transparent Subject MOV")
         self.view_mode = QComboBox()
-        self.view_mode.addItem("Video + overlay", "overlay")
-        self.view_mode.addItem("Originale", "original")
-        self.view_mode.addItem("Maschera B/N", "mask")
-        self.view_mode.addItem("Soggetto isolato", "isolated")
-        self.model_status = QLabel("SAM 2.1 Base+ · caricamento…")
+        self.view_mode.addItem("Video + Overlay", "overlay")
+        self.view_mode.addItem("Original", "original")
+        self.view_mode.addItem("B&W Mask", "mask")
+        self.view_mode.addItem("Isolated Subject", "isolated")
+        self.model_status = QLabel("SAM 2.1 Base+ · loading…")
         layout.addWidget(self.export_mask_button)
         layout.addWidget(self.export_rgba_button)
         layout.addWidget(self.export_mask_video_button)
@@ -432,7 +432,7 @@ class MainWindow(QMainWindow):
         layout.addWidget(self.view_mode)
         layout.addStretch(1)
         layout.addWidget(self.model_status)
-        layout.addWidget(QLabel("Zoom: rotella · Pan: tasto centrale"))
+        layout.addWidget(QLabel("Zoom: scroll wheel · Pan: middle mouse button"))
 
         self.positive_button.clicked.connect(lambda: self._set_point_mode(1))
         self.negative_button.clicked.connect(lambda: self._set_point_mode(0))
@@ -495,7 +495,7 @@ class MainWindow(QMainWindow):
 
     def _selected_subject(self) -> dict[str, str]:
         if self.project is None:
-            return {"id": self.active_subject_id, "name": "Soggetto 1", "color": "#43e09b"}
+            return {"id": self.active_subject_id, "name": "Subject 1", "color": "#43e09b"}
         for subject in self.project.subjects:
             if subject["id"] == self.active_subject_id:
                 return subject
@@ -536,7 +536,7 @@ class MainWindow(QMainWindow):
 
     def _add_subject(self) -> None:
         if self.project is None:
-            self.statusBar().showMessage("Apri prima un video o un progetto.", 4000)
+            self.statusBar().showMessage("Open a video or project first.", 4000)
             return
         try:
             subject = self.project.add_subject()
@@ -544,7 +544,7 @@ class MainWindow(QMainWindow):
             self._refresh_subject_controls()
             self._refresh_overlay()
             self.statusBar().showMessage(
-                f"{subject['name']} aggiunto: selezionalo e inserisci i suoi punti.",
+                f"{subject['name']} added. Select it and add its prompts.",
                 5000,
             )
         except (ProjectError, OSError) as exc:
@@ -556,8 +556,8 @@ class MainWindow(QMainWindow):
         subject = self._selected_subject()
         answer = QMessageBox.question(
             self,
-            "Rimuovi soggetto",
-            f"Rimuovere {subject['name']} e tutte le sue maschere e annotazioni?",
+            "Remove Subject",
+            f"Remove {subject['name']} and all of its masks and annotations?",
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.Cancel,
             QMessageBox.StandardButton.Cancel,
         )
@@ -597,15 +597,15 @@ class MainWindow(QMainWindow):
 
     def _set_brush_size(self, size: int) -> None:
         self.viewer.brush_radius = max(1, size // 2)
-        self.brush_size_label.setText(f"Pennello: {size} px")
+        self.brush_size_label.setText(f"Brush: {size} px")
 
     def open_video(self, path: str | None = None) -> None:
         if path is None:
             path, _ = QFileDialog.getOpenFileName(
                 self,
-                "Apri video",
+                "Open Video",
                 str(self.paths.root),
-                "Video (*.mp4 *.mov *.mkv *.avi *.m4v *.webm);;Tutti i file (*)",
+                "Video (*.mp4 *.mov *.mkv *.avi *.m4v *.webm);;All Files (*)",
             )
         if not path:
             return
@@ -627,7 +627,7 @@ class MainWindow(QMainWindow):
             self.range_end.setValue(info.frame_count - 1)
             self.video_info_label.setText(
                 f"{info.width}×{info.height} · {info.fps:.3f} fps · "
-                f"{info.duration:.2f} s · {info.frame_count} frame"
+                f"{info.duration:.2f} s · {info.frame_count} frames"
             )
             self.setWindowTitle(f"Roto Local — {Path(path).name}")
             self._seek(0)
@@ -637,9 +637,9 @@ class MainWindow(QMainWindow):
     def open_project(self) -> None:
         path, _ = QFileDialog.getOpenFileName(
             self,
-            "Apri progetto",
+            "Open Project",
             str(self.paths.projects),
-            "Progetto Roto Local (project.json)",
+            "Roto Local Project (project.json)",
         )
         if not path:
             return
@@ -668,7 +668,7 @@ class MainWindow(QMainWindow):
             self.range_end.setValue(info.frame_count - 1)
             self.video_info_label.setText(
                 f"{info.width}×{info.height} · {info.fps:.3f} fps · "
-                f"{info.duration:.2f} s · {info.frame_count} frame"
+                f"{info.duration:.2f} s · {info.frame_count} frames"
             )
             self.setWindowTitle(f"Roto Local — {project.source.name}")
             self._seek(0)
@@ -680,9 +680,9 @@ class MainWindow(QMainWindow):
             return
         try:
             self.project.save()
-            self.statusBar().showMessage("Progetto salvato", 4000)
+            self.statusBar().showMessage("Project saved", 4000)
         except OSError as exc:
-            self._show_error(f"Salvataggio progetto non riuscito: {exc}")
+            self._show_error(f"Could not save project: {exc}")
 
     def _mask_resolution_changed(self) -> None:
         if self.project is None:
@@ -901,14 +901,14 @@ class MainWindow(QMainWindow):
             return
         if self.frame is None:
             self.statusBar().showMessage(
-                "Attendi il caricamento del fotogramma a piena risoluzione.", 3000
+                "Wait for the full-resolution frame to load.", 3000
             )
             return
         subject = self._selected_subject()
         points = self.project.points(self.current_frame, subject["id"])
         if label == 0 and not any(point["label"] == 1 for point in points):
             self.statusBar().showMessage(
-                "Aggiungi prima un punto positivo sul soggetto.", 4000
+                "Add a positive point on the subject first.", 4000
             )
             return
         point = {"x": round(x, 2), "y": round(y, 2), "label": label}
@@ -927,7 +927,7 @@ class MainWindow(QMainWindow):
             self._source_generation,
         )
         self.statusBar().showMessage(
-            "Aggiornamento maschera… " + ("includi" if label else "escludi"),
+            "Updating mask… " + ("include" if label else "exclude"),
             3000,
         )
 
@@ -948,7 +948,7 @@ class MainWindow(QMainWindow):
             self.project.save_ai_mask(frame_index, mask, subject_id=subject_id)
             if frame_index == self.current_frame:
                 self._refresh_overlay()
-            self.statusBar().showMessage("Maschera aggiornata", 3000)
+            self.statusBar().showMessage("Mask updated", 3000)
         except ProjectError as exc:
             self._show_error(str(exc))
 
@@ -956,7 +956,7 @@ class MainWindow(QMainWindow):
         if self.project is None or self.frame is None:
             if self.project is not None:
                 self.statusBar().showMessage(
-                    "Attendi il caricamento del fotogramma a piena risoluzione.", 3000
+                    "Wait for the full-resolution frame to load.", 3000
                 )
             return
         frame_index = self.current_frame
@@ -987,7 +987,7 @@ class MainWindow(QMainWindow):
         frame_index = self.current_frame
         if self.frame is None and self.undo_operations.get(frame_index):
             self.statusBar().showMessage(
-                "Attendi il caricamento del fotogramma a piena risoluzione.", 3000
+                "Wait for the full-resolution frame to load.", 3000
             )
             return
         undo_stack = self.undo_operations.setdefault(frame_index, [])
@@ -1042,20 +1042,20 @@ class MainWindow(QMainWindow):
             return
         first, last = self.range_start.value(), self.range_end.value()
         if first > last:
-            self._show_error("Il primo fotogramma dell'intervallo deve precedere l'ultimo.")
+            self._show_error("The first frame in the range must come before the last frame.")
             return
         start = self.current_frame
         if not first <= start <= last:
             self._show_error(
-                "Seleziona un fotogramma iniziale compreso nell'intervallo impostato."
+                "Select a starting frame within the chosen range."
             )
             return
         for subject in self.project.subjects:
             prompts = self.project.points(start, subject["id"])
             if not any(point["label"] == 1 for point in prompts):
                 self._show_error(
-                    f"Aggiungi almeno un punto positivo per {subject['name']} "
-                    "sul fotogramma selezionato."
+                    f"Add at least one positive point for {subject['name']} "
+                    "on the selected frame."
                 )
                 self.subject_selector.setCurrentIndex(
                     self.subject_selector.findData(subject["id"])
@@ -1085,13 +1085,13 @@ class MainWindow(QMainWindow):
         )
         direction_label = self.tracking_direction.currentText().lower()
         self.statusBar().showMessage(
-            f"Tracking {direction_label} dal frame {start + 1} — "
-            "correzioni manuali consigliate"
+            f"Tracking {direction_label} from frame {start + 1} — "
+            "manual corrections recommended"
         )
 
     def _cancel_propagation(self) -> None:
         self.worker.cancel()
-        self.statusBar().showMessage("Interruzione richiesta…")
+        self.statusBar().showMessage("Cancellation requested…")
 
     def _progress_changed(self, processed: int, total: int) -> None:
         percent = int(100 * processed / max(total, 1))
@@ -1101,9 +1101,9 @@ class MainWindow(QMainWindow):
             elapsed = time.monotonic() - self.progress_started_at
             rate = processed / max(elapsed, 0.001)
             seconds_left = int(max(total - processed, 0) / rate)
-            remaining = f" · ~{seconds_left}s rimanenti"
+            remaining = f" · ~{seconds_left}s remaining"
         self.statusBar().showMessage(
-            f"Propagazione: {percent}% · {processed}/{total} fotogrammi{remaining}"
+            f"Tracking: {percent}% · {processed}/{total} frames{remaining}"
         )
 
     def _propagated_frame(self, frame_index: int) -> None:
@@ -1126,14 +1126,14 @@ class MainWindow(QMainWindow):
 
     def export_current_range(self, rgba: bool) -> None:
         if self.project is None:
-            self._show_error("Apri prima un video o un progetto.")
+            self._show_error("Open a video or project first.")
             return
         start, end = self.range_start.value(), self.range_end.value()
-        kind = "rgba" if rgba else "maschere"
+        kind = "rgba" if rgba else "masks"
         suggested = self.paths.exports / self.project.folder.name / kind
         destination_text = QFileDialog.getExistingDirectory(
             self,
-            "Scegli la cartella di esportazione",
+            "Choose an export folder",
             str(suggested),
         )
         if not destination_text:
@@ -1149,38 +1149,38 @@ class MainWindow(QMainWindow):
         )
         task.signals.failed.connect(self._show_error)
         task.signals.export_done.connect(
-            lambda output: self.statusBar().showMessage(f"Esportato: {output}", 10000)
+            lambda output: self.statusBar().showMessage(f"Exported: {output}", 10000)
         )
         task.signals.export_progress.connect(
             lambda count, total: self.progress.setValue(int(100 * count / max(total, 1)))
         )
         QThreadPool.globalInstance().start(task)
-        self.statusBar().showMessage("Esportazione in corso…")
+        self.statusBar().showMessage("Exporting…")
 
     def export_current_video(self, mode: str) -> None:
         if self.video_exporting:
-            self.statusBar().showMessage("Un'esportazione video è già in corso.")
+            self.statusBar().showMessage("A video export is already in progress.")
             return
         if self.project is None:
-            self._show_error("Apri prima un video o un progetto.")
+            self._show_error("Open a video or project first.")
             return
         if mode not in {"mask", "alpha"}:
-            self._show_error("Formato video di esportazione non valido.")
+            self._show_error("Invalid video export format.")
             return
         start, end = self.range_start.value(), self.range_end.value()
         suffix = ".mp4" if mode == "mask" else ".mov"
-        name = "maschera_bn" if mode == "mask" else "soggetto_alpha"
+        name = "mask_bw" if mode == "mask" else "subject_alpha"
         suggested = (
             self.paths.exports
             / f"{name}_{start + 1:08d}-{end + 1:08d}{suffix}"
         )
         title = (
-            "Esporta maschera B/N MP4"
+            "Export B&W Mask MP4"
             if mode == "mask"
-            else "Esporta soggetto trasparente MOV"
+            else "Export Transparent Subject MOV"
         )
         file_filter = (
-            "Video MP4 (*.mp4)" if mode == "mask" else "Video MOV (*.mov)"
+            "MP4 Video (*.mp4)" if mode == "mask" else "MOV Video (*.mov)"
         )
         destination_text, _ = QFileDialog.getSaveFileName(
             self,
@@ -1193,7 +1193,7 @@ class MainWindow(QMainWindow):
         destination = Path(destination_text).expanduser()
         if destination.suffix.lower() != suffix:
             if destination.suffix:
-                self._show_error(f"Il file deve avere estensione {suffix}.")
+                self._show_error(f"The file must use the {suffix} extension.")
                 return
             destination = destination.with_suffix(suffix)
         destination = destination.resolve()
@@ -1207,7 +1207,7 @@ class MainWindow(QMainWindow):
         )
         task.signals.failed.connect(self._show_error)
         task.signals.export_done.connect(
-            lambda output: self.statusBar().showMessage(f"Esportato: {output}", 10000)
+            lambda output: self.statusBar().showMessage(f"Exported: {output}", 10000)
         )
         task.signals.export_progress.connect(
             lambda count, total: self.progress.setValue(
@@ -1219,7 +1219,7 @@ class MainWindow(QMainWindow):
         self.export_mask_video_button.setEnabled(False)
         self.export_cutout_video_button.setEnabled(False)
         QThreadPool.globalInstance().start(task)
-        self.statusBar().showMessage("Esportazione video in corso…")
+        self.statusBar().showMessage("Exporting video…")
 
     def _video_export_finished(self) -> None:
         self.video_exporting = False
@@ -1231,16 +1231,16 @@ class MainWindow(QMainWindow):
             return
         if self.play_timer.isActive():
             self.play_timer.stop()
-            self.play_button.setText("Riproduci")
+            self.play_button.setText("Play")
         else:
             self.play_timer.start(max(1, round(1000 / self.info.fps)))
-            self.play_button.setText("Pausa")
+            self.play_button.setText("Pause")
 
     def _advance_playback(self) -> None:
         end = self.range_end.value() if self.info else 0
         if self.current_frame >= end:
             self.play_timer.stop()
-            self.play_button.setText("Riproduci")
+            self.play_button.setText("Play")
         else:
             self._seek(self.current_frame + 1)
 

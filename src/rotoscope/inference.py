@@ -28,7 +28,7 @@ class RotoEngine:
 
     def load(self) -> str:
         if not self.paths.model.is_file():
-            raise InferenceError(f"Checkpoint SAM 2.1 Base+ non trovato: {self.paths.model}")
+            raise InferenceError(f"SAM 2.1 Base+ checkpoint not found: {self.paths.model}")
         import torch
         from sam2.build_sam import build_sam2_video_predictor
         from sam2.sam2_image_predictor import SAM2ImagePredictor
@@ -42,7 +42,7 @@ class RotoEngine:
             apply_postprocessing=False,
         )
         self.image_predictor = SAM2ImagePredictor(self.video_predictor)
-        return f"SAM 2.1 Base+ pronto ({self.device.upper()}; fallback CPU PyTorch abilitato)"
+        return f"SAM 2.1 Base+ ready ({self.device.upper()}; PyTorch CPU fallback enabled)"
 
     def segment(
         self,
@@ -52,9 +52,9 @@ class RotoEngine:
         subject_id: str | None = None,
     ) -> np.ndarray:
         if self.image_predictor is None:
-            raise InferenceError("Il modello immagine non è caricato.")
+            raise InferenceError("The image model is not loaded.")
         if not any(point["label"] == 1 for point in points):
-            raise InferenceError("Aggiungi almeno un punto positivo prima di segmentare.")
+            raise InferenceError("Add at least one positive point before segmenting.")
         if (
             frame_index != self._active_image_index
             or image is not self._active_image
@@ -87,7 +87,7 @@ class RotoEngine:
 
     def _ensure_video_predictor(self):
         if self.video_predictor is None:
-            raise InferenceError("Il modello video SAM 2.1 non è caricato.")
+            raise InferenceError("The SAM 2.1 video model is not loaded.")
         return self.video_predictor
 
     def propagate(
@@ -106,18 +106,18 @@ class RotoEngine:
             or last_frame >= project.video_info.frame_count
             or first_frame > last_frame
         ):
-            raise InferenceError("Intervallo di propagazione non valido.")
+            raise InferenceError("Invalid tracking range.")
         if not first_frame <= start_frame <= last_frame:
-            raise InferenceError("Il fotogramma iniziale deve essere dentro l'intervallo.")
+            raise InferenceError("The starting frame must be within the selected range.")
         if direction not in {"forward", "reverse", "both"}:
-            raise InferenceError("Direzione di tracking non valida.")
+            raise InferenceError("Invalid tracking direction.")
         if window_size < 12:
-            raise InferenceError("La finestra minima verificata per SAM 2 è di 12 fotogrammi.")
+            raise InferenceError("The minimum verified SAM 2 window is 12 frames.")
         subject_id = subject_id or project.subjects[0]["id"]
         prompts = project.points(start_frame, subject_id)
         if not any(point["label"] == 1 for point in prompts):
             raise InferenceError(
-                f"Aggiungi un punto positivo sul fotogramma iniziale {start_frame}."
+                f"Add a positive point on starting frame {start_frame}."
             )
 
         if direction == "reverse" and start_frame == first_frame:
@@ -199,7 +199,7 @@ class RotoEngine:
                             predictor.add_new_mask(state, seed_frame, 1, seed_mask)
                         else:
                             raise InferenceError(
-                                f"Nessun prompt o maschera seme sul fotogramma {anchor_frame}."
+                                f"No prompt or seed mask on frame {anchor_frame}."
                             )
 
                         for annotated_frame in range(chunk_start, chunk_end + 1):

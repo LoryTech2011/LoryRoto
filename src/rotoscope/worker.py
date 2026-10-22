@@ -140,7 +140,7 @@ class InferenceWorker(QObject):
                 try:
                     project.save()
                 except OSError as exc:
-                    self.failed.emit(f"Salvataggio progetto dopo il tracking non riuscito: {exc}")
+                    self.failed.emit(f"Could not save project after tracking: {exc}")
             self.propagation_finished.emit()
 
     def cancel(self) -> None:
