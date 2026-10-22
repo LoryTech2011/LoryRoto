@@ -6,6 +6,22 @@ Video stays on the selected source path. By default, models, projects, frame
 windows, logs, cache, temporary files, and PNG exports stay inside this
 application folder; video exports can be saved to any writable location.
 
+## Screenshots
+
+The main workspace shows multi-subject masks, point prompts, brush corrections,
+tracking controls, and export options:
+
+![Roto Local workspace with tracked subject masks and export controls](assets/screenshots/rotoscope-workspace.png)
+
+Choose between the original video, mask, and isolated-subject views:
+
+![Viewer mode options](assets/screenshots/viewer-modes.png)
+
+Point prompts and manual add/subtract brush tools are available in the
+annotation panel:
+
+![Subject selection, point prompts, and manual brush controls](assets/screenshots/annotation-tools.png)
+
 ## Requirements
 
 - macOS on Apple Silicon; tested here on an M4 with 16 GiB unified memory.
