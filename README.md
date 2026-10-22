@@ -1,6 +1,6 @@
-# Roto Local
+# LoryRoto
 
-Roto Local is a local-first macOS video rotoscoping application. The current build
+Roto Local (LoryRoto) is a local-first macOS video rotoscoping application. The current build
 uses SAM 2.1 Hiera Base+ for point-prompted masks and offline video propagation.
 Video stays on the selected source path. By default, models, projects, frame
 windows, logs, cache, temporary files, and PNG exports stay inside this
